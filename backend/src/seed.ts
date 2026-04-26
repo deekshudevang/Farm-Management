@@ -1,13 +1,23 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  console.log('Cleaning up existing data...');
+  await prisma.inventory.deleteMany({});
+  await prisma.task.deleteMany({});
+  await prisma.crop.deleteMany({});
+  await prisma.field.deleteMany({});
+  await prisma.user.deleteMany({ where: { email: 'admin@smartfarm.com' } });
+
   console.log('Creating Admin User...');
+  const hashedPassword = await bcrypt.hash('password123', 10);
+  
   const admin = await prisma.user.create({
     data: {
       email: 'admin@smartfarm.com',
-      password: 'password123', // In a real app, hash this!
+      password: hashedPassword,
       plainPassword: 'password123',
       name: 'Admin User',
       role: 'ADMIN',
