@@ -171,8 +171,8 @@ export const Dashboard = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-2xl font-black text-slate-900">84%</span>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active</span>
+              <span className="text-2xl font-black text-slate-900">{crops.length > 0 ? '75%' : '0%'}</span>
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{crops.length > 0 ? 'Active' : 'Ready'}</span>
             </div>
           </div>
           <div className="mt-6 space-y-3">

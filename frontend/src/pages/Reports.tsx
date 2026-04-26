@@ -200,30 +200,40 @@ export const Reports = () => {
               <h3 className="text-[16px] font-black text-slate-900">Resource Stockpile Auditing</h3>
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">Real-time inventory level matrix</p>
             </div>
-            <div className="flex gap-4">
-               <div className="px-4 py-2 bg-emerald-50 rounded-xl border border-emerald-100">
-                  <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Safety Status</p>
-                  <p className="text-[13px] font-black text-emerald-700">All Nodes Optimal</p>
-               </div>
-            </div>
+             <div className="flex gap-4">
+                <div className={`px-4 py-2 rounded-xl border ${data.inventoryStats.length > 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
+                   <p className={`text-[9px] font-black uppercase tracking-widest ${data.inventoryStats.length > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>Safety Status</p>
+                   <p className={`text-[13px] font-black ${data.inventoryStats.length > 0 ? 'text-emerald-700' : 'text-slate-500'}`}>{data.inventoryStats.length > 0 ? 'All Nodes Optimal' : 'No Data'}</p>
+                </div>
+             </div>
           </div>
           <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.inventoryStats}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} />
-                <Tooltip 
-                   cursor={{ fill: 'rgba(20, 184, 166, 0.05)' }}
-                   contentStyle={{ background: '#fff', border: 'none', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
-                />
-                <Bar dataKey="qty" radius={[6, 6, 0, 0]} barSize={40}>
-                  {data.inventoryStats.map((entry:any, index:number) => (
-                    <Cell key={`cell-${index}`} fill={entry.qty < 15 ? '#ef4444' : '#14b8a6'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            {data.inventoryStats.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.inventoryStats}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} />
+                  <Tooltip 
+                     cursor={{ fill: 'rgba(20, 184, 166, 0.05)' }}
+                     contentStyle={{ background: '#fff', border: 'none', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                  />
+                  <Bar dataKey="qty" radius={[6, 6, 0, 0]} barSize={40}>
+                    {data.inventoryStats.map((entry:any, index:number) => (
+                      <Cell key={`cell-${index}`} fill={entry.qty < 15 ? '#ef4444' : '#14b8a6'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-center space-y-3">
+                 <div className="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-300">
+                    <Package className="h-8 w-8" />
+                 </div>
+                 <p className="text-[13px] font-bold text-slate-400">No resources registered in the system stockpile.</p>
+                 <button className="text-[11px] font-black text-teal-600 hover:underline">Register New Resource</button>
+              </div>
+            )}
           </div>
         </div>
       </div>
