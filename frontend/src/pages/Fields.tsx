@@ -134,9 +134,14 @@ export const Fields = () => {
           </div>
           <div className="mt-4 flex items-center gap-2">
              <div className="h-1.5 flex-1 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-teal-500 rounded-full w-3/4"></div>
+                <div 
+                  className="h-full bg-teal-500 rounded-full transition-all duration-1000" 
+                  style={{ width: `${fields.length > 0 ? (fields.filter(f => f.crops?.length > 0).length / fields.length * 100) : 0}%` }}
+                ></div>
              </div>
-             <span className="text-[10px] font-black text-teal-600">75% UTILIZED</span>
+             <span className="text-[10px] font-black text-teal-600">
+               {fields.length > 0 ? Math.round((fields.filter(f => f.crops?.length > 0).length / fields.length * 100)) : 0}% UTILIZED
+             </span>
           </div>
         </div>
 
