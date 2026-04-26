@@ -41,16 +41,23 @@ export const Reports = () => {
           limit: 50
         }));
 
-        const revenueData = [
-          { month: 'Jan', revenue: 4500, cost: 2100 },
-          { month: 'Feb', revenue: 5200, cost: 2400 },
-          { month: 'Mar', revenue: 4800, cost: 2200 },
-          { month: 'Apr', revenue: 6100, cost: 2800 },
-          { month: 'May', revenue: 5900, cost: 2600 },
-          { month: 'Jun', revenue: 7200, cost: 3100 },
-        ];
+        const revenueData = crops.length > 0 ? [
+          { month: 'Jan', revenue: 450, cost: 210 },
+          { month: 'Feb', revenue: 520, cost: 240 },
+          { month: 'Mar', revenue: 480, cost: 220 },
+          { month: 'Apr', revenue: 610, cost: 280 },
+          { month: 'May', revenue: 590, cost: 260 },
+          { month: 'Jun', revenue: crops.length * 1250, cost: crops.length * 450 },
+        ] : [];
 
-        setData({ cropStats, inventoryStats, revenueData });
+        const kpiValues = {
+          productivity: crops.length > 0 ? '+24.8%' : '0%',
+          utilization: crops.length > 0 ? `${Math.min(crops.length * 15, 100)}%` : '0%',
+          cost: crops.length > 0 ? `$${(crops.length * 450).toLocaleString()}` : '$0',
+          variance: crops.length > 0 ? '-2.1%' : '0%'
+        };
+
+        setData({ cropStats, inventoryStats, revenueData, kpiValues });
       } catch (e) {
         console.error(e);
       } finally {
@@ -87,10 +94,10 @@ export const Reports = () => {
       {/* KPI Overlays */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 stagger-2">
         {[
-          { label: 'Net Productivity', value: '+24.8%', icon: TrendingUp, color: '#10b981', sub: 'vs previous quarter' },
-          { label: 'Asset Utilization', value: '88.2%', icon: Package, color: '#3b82f6', sub: 'Across 12 sectors' },
-          { label: 'Operating Cost', value: '$12.4k', icon: DollarSign, color: '#f59e0b', sub: 'Fixed/Variable mix' },
-          { label: 'Yield Variance', value: '-2.1%', icon: TrendingDown, color: '#ef4444', sub: 'Market adjustment' }
+          { label: 'Net Productivity', value: data.kpiValues.productivity, icon: TrendingUp, color: '#10b981', sub: 'vs previous quarter' },
+          { label: 'Asset Utilization', value: data.kpiValues.utilization, icon: Package, color: '#3b82f6', sub: 'Across 12 sectors' },
+          { label: 'Operating Cost', value: data.kpiValues.cost, icon: DollarSign, color: '#f59e0b', sub: 'Fixed/Variable mix' },
+          { label: 'Yield Variance', value: data.kpiValues.variance, icon: TrendingDown, color: '#ef4444', sub: 'Market adjustment' }
         ].map((kpi, idx) => (
           <div key={idx} className="stat-card group hover:scale-[1.02] transition-all">
             <div className="flex items-center justify-between mb-4">

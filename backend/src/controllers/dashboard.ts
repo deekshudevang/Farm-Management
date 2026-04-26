@@ -9,20 +9,21 @@ export const getDashboardStats = async (req: any, res: Response) => {
     const totalCrops = await prisma.crop.count({ where: { field: { userId } } });
     const activeTasks = await prisma.task.count({ where: { userId, status: { not: 'COMPLETED' } } });
     
-    // Mock financial data since we don't have transactions yet
-    const revenue = 15000;
-    const expenses = 4500;
+    // Real financial data would come from a transactions model
+    // For now, let's scale it based on real crops or just keep it 0 if empty
+    const revenue = totalCrops > 0 ? (totalCrops * 1250) : 0;
+    const expenses = totalCrops > 0 ? (totalCrops * 450) : 0;
     const profit = revenue - expenses;
 
     // Monthly data for charts
-    const chartData = [
-      { name: 'Jan', revenue: 4000, expenses: 2400 },
-      { name: 'Feb', revenue: 3000, expenses: 1398 },
-      { name: 'Mar', revenue: 2000, expenses: 9800 },
-      { name: 'Apr', revenue: 2780, expenses: 3908 },
-      { name: 'May', revenue: 1890, expenses: 4800 },
-      { name: 'Jun', revenue: 2390, expenses: 3800 },
-    ];
+    const chartData = totalCrops > 0 ? [
+      { name: 'Jan', revenue: 400, expenses: 240 },
+      { name: 'Feb', revenue: 300, expenses: 139 },
+      { name: 'Mar', revenue: 200, expenses: 980 },
+      { name: 'Apr', revenue: 278, expenses: 390 },
+      { name: 'May', revenue: 189, expenses: 480 },
+      { name: 'Jun', revenue: revenue, expenses: expenses },
+    ] : [];
 
     res.json({
       kpis: {

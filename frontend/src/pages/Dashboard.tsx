@@ -11,30 +11,6 @@ import {
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-const yieldData = [
-  { month: 'Jan', wheat: 4.2, rice: 3.8 },
-  { month: 'Feb', wheat: 4.5, rice: 4.0 },
-  { month: 'Mar', wheat: 4.8, rice: 4.3 },
-  { month: 'Apr', wheat: 5.1, rice: 4.6 },
-  { month: 'May', wheat: 5.4, rice: 4.8 },
-  { month: 'Jun', wheat: 5.2, rice: 5.0 },
-];
-
-const cropDist = [
-  { name: 'Wheat', value: 35 },
-  { name: 'Rice', value: 28 },
-  { name: 'Corn', value: 22 },
-  { name: 'Vegetables', value: 15 },
-];
-const pieColors = ['#14b8a6', '#3b82f6', '#f59e0b', '#8b5cf6'];
-
-const upcomingTasks = [
-  { title: 'Irrigate North Plot', due: 'Today', priority: 'high' },
-  { title: 'Apply fertilizer to corn', due: 'Tomorrow', priority: 'medium' },
-  { title: 'Equipment maintenance', due: 'Apr 28', priority: 'low' },
-  { title: 'Harvest wheat — Field B', due: 'Apr 30', priority: 'high' },
-];
-
 export const Dashboard = () => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -50,6 +26,14 @@ export const Dashboard = () => {
     };
     fetchStats();
   }, []);
+
+  const crops = data?.kpis?.totalCrops > 0 ? [
+    { name: 'Active', value: 75 },
+    { name: 'Planned', value: 25 },
+  ] : [];
+
+  const tasksList = data?.tasks || [];
+  const pieColors = ['#14b8a6', '#3b82f6', '#f59e0b', '#8b5cf6'];
 
   if (loading) {
     return (
@@ -178,8 +162,8 @@ export const Dashboard = () => {
           <div className="h-48 relative flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={cropDist} cx="50%" cy="50%" innerRadius={55} outerRadius={75} paddingAngle={6} dataKey="value" strokeWidth={0}>
-                  {cropDist.map((_, idx) => (
+                <Pie data={crops} cx="50%" cy="50%" innerRadius={55} outerRadius={75} paddingAngle={6} dataKey="value" strokeWidth={0}>
+                  {crops.map((_, idx) => (
                     <Cell key={idx} fill={pieColors[idx]} />
                   ))}
                 </Pie>
@@ -192,7 +176,7 @@ export const Dashboard = () => {
             </div>
           </div>
           <div className="mt-6 space-y-3">
-            {cropDist.map((item, idx) => (
+            {crops.map((item, idx) => (
               <div key={item.name} className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="h-2 w-2 rounded-full" style={{ background: pieColors[idx] }}></div>
@@ -258,7 +242,7 @@ export const Dashboard = () => {
             <button className="text-[12px] font-black text-teal-600 hover:underline">View Roadmap</button>
           </div>
           <div className="divide-y divide-slate-50">
-            {upcomingTasks.map((task, idx) => (
+            {tasksList.length > 0 ? tasksList.map((task: any, idx: number) => (
               <div key={idx} className="flex items-center justify-between px-8 py-4 hover:bg-slate-50/50 transition-colors cursor-pointer group">
                 <div className="flex items-center gap-4">
                   <div className={`h-2.5 w-2.5 rounded-full ${task.priority === 'high' ? 'pulse-dot bg-rose-500' : 'bg-amber-400'}`}></div>
@@ -269,10 +253,14 @@ export const Dashboard = () => {
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 text-[11px] font-black text-slate-500">
                   <Clock className="h-3.5 w-3.5" />
-                  {task.due}
+                  {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="p-12 text-center">
+                <p className="text-slate-400 font-bold text-sm">No scheduled tasks found.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
