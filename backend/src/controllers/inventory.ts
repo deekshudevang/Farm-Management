@@ -4,6 +4,7 @@ import { prisma } from '../utils/prisma';
 export const getInventory = async (req: any, res: Response) => {
   try {
     const inventory = await prisma.inventory.findMany({
+      where: { userId: req.user.id },
       orderBy: { createdAt: 'desc' }
     });
     res.json(inventory);
@@ -14,12 +15,14 @@ export const getInventory = async (req: any, res: Response) => {
 
 export const createInventoryItem = async (req: any, res: Response) => {
   try {
-    const { name, category, quantity } = req.body;
+    const { name, category, quantity, unit } = req.body;
     const item = await prisma.inventory.create({
       data: {
         name,
         category,
-        quantity: parseInt(quantity, 10)
+        quantity: parseInt(quantity, 10),
+        unit: unit || 'units',
+        userId: req.user.id
       }
     });
     res.status(201).json(item);
@@ -31,13 +34,14 @@ export const createInventoryItem = async (req: any, res: Response) => {
 export const updateInventoryItem = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, category, quantity } = req.body;
+    const { name, category, quantity, unit } = req.body;
     const item = await prisma.inventory.update({
       where: { id },
       data: {
         name,
         category,
-        quantity: parseInt(quantity, 10)
+        quantity: quantity !== undefined ? parseInt(quantity, 10) : undefined,
+        unit: unit !== undefined ? unit : undefined
       }
     });
     res.json(item);

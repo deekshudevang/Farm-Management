@@ -15,7 +15,7 @@ export const getCrops = async (req: any, res: Response) => {
 
 export const createCrop = async (req: any, res: Response) => {
   try {
-    const { name, stage, fieldId } = req.body;
+    const { name, stage, fieldId, variety } = req.body;
     
     // Verify field belongs to user
     const field = await prisma.field.findUnique({ where: { id: fieldId } });
@@ -27,7 +27,8 @@ export const createCrop = async (req: any, res: Response) => {
       data: {
         name,
         stage,
-        fieldId
+        fieldId,
+        variety: variety || ''
       }
     });
     res.status(201).json(crop);
@@ -39,10 +40,14 @@ export const createCrop = async (req: any, res: Response) => {
 export const updateCrop = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
-    const { stage } = req.body;
+    const { stage, variety, name } = req.body;
     const crop = await prisma.crop.update({
       where: { id },
-      data: { stage }
+      data: { 
+        stage: stage !== undefined ? stage : undefined,
+        variety: variety !== undefined ? variety : undefined,
+        name: name !== undefined ? name : undefined
+      }
     });
     res.json(crop);
   } catch (error) {

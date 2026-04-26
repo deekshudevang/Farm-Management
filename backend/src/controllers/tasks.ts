@@ -15,10 +15,13 @@ export const getTasks = async (req: any, res: Response) => {
 
 export const createTask = async (req: any, res: Response) => {
   try {
-    const { title } = req.body;
+    const { title, description, priority, dueDate } = req.body;
     const task = await prisma.task.create({
       data: {
         title,
+        description: description || '',
+        priority: priority || 'medium',
+        dueDate: dueDate ? new Date(dueDate) : null,
         userId: req.user.id
       }
     });
@@ -31,12 +34,15 @@ export const createTask = async (req: any, res: Response) => {
 export const updateTask = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, status } = req.body;
+    const { title, status, description, priority, dueDate } = req.body;
     const task = await prisma.task.update({
       where: { id },
       data: { 
         title: title !== undefined ? title : undefined,
-        status: status !== undefined ? status : undefined
+        status: status !== undefined ? status : undefined,
+        description: description !== undefined ? description : undefined,
+        priority: priority !== undefined ? priority : undefined,
+        dueDate: dueDate !== undefined ? (dueDate ? new Date(dueDate) : null) : undefined
       }
     });
     res.json(task);
