@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell
+  ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import {
   Map, Leaf, CheckSquare, DollarSign,
   ArrowUpRight, ArrowDownRight, Plus, CloudSun, Droplets, Wind,
-  TrendingUp, Calendar, Activity, Zap, Clock
+  TrendingUp, Calendar, Zap, Clock
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -27,10 +27,7 @@ export const Dashboard = () => {
     fetchStats();
   }, []);
 
-  const crops = data?.kpis?.totalCrops > 0 ? [
-    { name: 'Active', value: 75 },
-    { name: 'Planned', value: 25 },
-  ] : [];
+  const crops = data?.cropsDistribution || [];
 
   const tasksList = data?.tasks || [];
   const pieColors = ['#14b8a6', '#3b82f6', '#f59e0b', '#8b5cf6'];
@@ -163,7 +160,7 @@ export const Dashboard = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={crops} cx="50%" cy="50%" innerRadius={55} outerRadius={75} paddingAngle={6} dataKey="value" strokeWidth={0}>
-                  {crops.map((_, idx) => (
+                  {crops.map((_: any, idx: number) => (
                     <Cell key={idx} fill={pieColors[idx]} />
                   ))}
                 </Pie>
@@ -176,7 +173,7 @@ export const Dashboard = () => {
             </div>
           </div>
           <div className="mt-6 space-y-3">
-            {crops.map((item, idx) => (
+            {crops.map((item: any, idx: number) => (
               <div key={item.name} className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="h-2 w-2 rounded-full" style={{ background: pieColors[idx] }}></div>

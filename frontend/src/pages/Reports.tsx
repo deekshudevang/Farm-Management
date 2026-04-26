@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  LineChart, Line, PieChart, Pie, Cell, AreaChart, Area
+  PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
 import { 
   TrendingUp, TrendingDown, DollarSign, Package, 
-  Leaf, Calendar, Download, Filter, ChevronRight
+  Download, Filter, ChevronRight
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -18,7 +18,7 @@ export const Reports = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [c, i, f] = await Promise.all([
+        const [c, i] = await Promise.all([
           api.get('/crops'),
           api.get('/inventory'),
           api.get('/fields')
@@ -172,7 +172,7 @@ export const Reports = () => {
                   paddingAngle={8}
                   dataKey="value"
                 >
-                  {data.cropStats.map((entry:any, index:number) => (
+                  {data.cropStats.map((_entry:any, index:number) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

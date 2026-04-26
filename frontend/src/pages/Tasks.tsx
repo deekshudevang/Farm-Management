@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   CheckSquare, Plus, X, Search, Clock, 
-  CheckCircle2, AlertCircle, Edit3, Trash2, FilterX,
+  CheckCircle2, Edit3, Trash2, FilterX,
   ArrowRight, ListTodo, Activity, Timer
 } from 'lucide-react';
 import api from '../services/api';

@@ -25,6 +25,24 @@ export const getDashboardStats = async (req: any, res: Response) => {
       { name: 'Jun', revenue: revenue, expenses: expenses },
     ] : [];
 
+    // Get real crops for distribution
+    const crops = await prisma.crop.findMany({
+      where: { field: { userId } },
+    });
+
+    const cropsDistribution = [
+      { name: 'Seedling', value: crops.filter(c => c.stage === 'Seedling').length },
+      { name: 'Growing', value: crops.filter(c => c.stage === 'Growing').length },
+      { name: 'Ready', value: crops.filter(c => c.stage === 'Ready').length },
+      { name: 'Harvested', value: crops.filter(c => c.stage === 'Harvested').length },
+    ].filter(d => d.value > 0);
+
+    const tasks = await prisma.task.findMany({
+      where: { userId },
+      take: 5,
+      orderBy: { createdAt: 'desc' }
+    });
+
     res.json({
       kpis: {
         totalFields,
@@ -34,7 +52,9 @@ export const getDashboardStats = async (req: any, res: Response) => {
         expenses,
         profit
       },
-      chartData
+      chartData,
+      cropsDistribution,
+      tasks
     });
   } catch (error) {
     console.error(error);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { 
   Package, Plus, X, AlertTriangle, Search, 
   Edit3, Trash2, Box, Droplet, Cog, FilterX,
-  ArrowRight, Download, BarChart2
+  ArrowRight, Download
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -138,7 +138,7 @@ export const Inventory = () => {
 
       {/* Category Filter Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 stagger-3">
-        {categories.map((cat, idx) => {
+        {categories.map((cat) => {
           const Icon = catIcon[cat];
           const count = items.filter(i => i.category === cat).length;
           const isActive = selectedCategory === cat;

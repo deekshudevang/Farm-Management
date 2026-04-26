@@ -41,6 +41,16 @@ export const updateCrop = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
     const { stage, variety, name } = req.body;
+    
+    const targetCrop = await prisma.crop.findUnique({
+      where: { id },
+      include: { field: true }
+    });
+    
+    if (!targetCrop || targetCrop.field.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
     const crop = await prisma.crop.update({
       where: { id },
       data: { 

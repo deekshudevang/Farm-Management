@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  Map, Plus, X, Layers, Edit3, Trash2, 
+  Map, Plus, X, Edit3, Trash2, 
   Trees, Search, FilterX, MapPin, ArrowRight,
   Maximize2, Ruler, Thermometer
 } from 'lucide-react';

@@ -36,7 +36,10 @@ export const updateTask = async (req: any, res: Response) => {
     const { id } = req.params;
     const { title, status, description, priority, dueDate } = req.body;
     const task = await prisma.task.update({
-      where: { id },
+      where: { 
+        id,
+        userId: req.user.id
+      },
       data: { 
         title: title !== undefined ? title : undefined,
         status: status !== undefined ? status : undefined,
@@ -54,6 +57,10 @@ export const updateTask = async (req: any, res: Response) => {
 export const deleteTask = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
+    const targetTask = await prisma.task.findUnique({ where: { id } });
+    if (!targetTask || targetTask.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
     await prisma.task.delete({ where: { id } });
     res.status(204).send();
   } catch (error) {

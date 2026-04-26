@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Leaf, Plus, X, Search, Sprout, Sun, Wheat, FilterX,
-  ArrowRight, Calendar, MapPin, MoreVertical, ExternalLink
+  ArrowRight, MapPin, MoreVertical
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -85,7 +85,7 @@ export const Crops = () => {
 
       {/* Stage Analysis Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 stagger-2">
-        {stageCounts.map((s, idx) => {
+        {stageCounts.map((s) => {
           const Icon = stageIcon[s.stage];
           const isActive = selectedStage === s.stage;
           return (
@@ -170,7 +170,7 @@ export const Crops = () => {
                       </div>
                       <div>
                         <p className="text-[14px] font-black text-slate-900">{crop.name}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">GENOME: {crop.name.slice(0,3).toUpperCase()}-{(idx:number)=>idx}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">GENOME: {crop.name.slice(0,3).toUpperCase()}-{(index:number)=>index}</p>
                       </div>
                     </div>
                   </td>

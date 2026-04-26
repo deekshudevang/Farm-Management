@@ -36,7 +36,10 @@ export const updateInventoryItem = async (req: any, res: Response) => {
     const { id } = req.params;
     const { name, category, quantity, unit } = req.body;
     const item = await prisma.inventory.update({
-      where: { id },
+      where: { 
+        id,
+        userId: req.user.id
+      },
       data: {
         name,
         category,
@@ -53,6 +56,10 @@ export const updateInventoryItem = async (req: any, res: Response) => {
 export const deleteInventoryItem = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
+    const targetItem = await prisma.inventory.findUnique({ where: { id } });
+    if (!targetItem || targetItem.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
     await prisma.inventory.delete({ where: { id } });
     res.status(204).send();
   } catch (error) {

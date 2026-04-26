@@ -36,7 +36,10 @@ export const updateField = async (req: any, res: Response) => {
     const { id } = req.params;
     const { name, size, soilType } = req.body;
     const field = await prisma.field.update({
-      where: { id },
+      where: { 
+        id,
+        userId: req.user.id
+      },
       data: {
         name,
         size: parseFloat(size),
@@ -52,11 +55,11 @@ export const updateField = async (req: any, res: Response) => {
 export const deleteField = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
-    // Check if field has crops
-    const crops = await prisma.crop.findMany({ where: { fieldId: id } });
-    if (crops.length > 0) {
-      return res.status(400).json({ error: 'Cannot delete field with active crops' });
+    const targetField = await prisma.field.findUnique({ where: { id } });
+    if (!targetField || targetField.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
     }
+
     await prisma.field.delete({ where: { id } });
     res.status(204).send();
   } catch (error) {
