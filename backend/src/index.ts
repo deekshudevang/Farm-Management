@@ -8,6 +8,7 @@ import fieldsRoutes from './routes/fields';
 import cropsRoutes from './routes/crops';
 import tasksRoutes from './routes/tasks';
 import inventoryRoutes from './routes/inventory';
+import settingsRoutes from './routes/settings';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/settings', settingsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/fields', fieldsRoutes);
 app.use('/api/crops', cropsRoutes);

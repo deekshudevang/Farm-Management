@@ -73,10 +73,23 @@ export const Sidebar = () => {
           Support
         </p>
         <div className="space-y-2">
-          <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-[14px] font-bold text-slate-400 hover:bg-white/5 hover:text-white transition-all">
-            <Settings className="h-5 w-5 text-slate-500" />
+          <NavLink
+            to="/settings"
+            className={`group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-[14px] font-bold transition-all duration-300 ${
+              location.pathname === '/settings'
+                ? 'bg-gradient-to-r from-teal-500/20 to-blue-500/10 text-teal-400 shadow-sm'
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
+            }`}
+            style={{
+              border: location.pathname === '/settings' ? '1px solid rgba(20, 184, 166, 0.2)' : '1px solid transparent'
+            }}
+          >
+            <Settings className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${location.pathname === '/settings' ? 'text-teal-400' : 'text-slate-500 group-hover:text-teal-400'}`} />
             <span>Settings</span>
-          </button>
+            {location.pathname === '/settings' && (
+              <div className="ml-auto h-1.5 w-1.5 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.8)]"></div>
+            )}
+          </NavLink>
           <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-[14px] font-bold text-slate-400 hover:bg-white/5 hover:text-white transition-all">
             <HelpCircle className="h-5 w-5 text-slate-500" />
             <span>Help Center</span>

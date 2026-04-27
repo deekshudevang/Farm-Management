@@ -609,4 +609,175 @@
       radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.1) 0, transparent 50%);
     z-index: -1;
   }
+
+  /* ══════════════════════════════
+     SETTINGS PAGE
+     ══════════════════════════════ */
+  .settings-section {
+    background: #fff;
+    border: 1px solid var(--stone-200);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: box-shadow 300ms ease, border-color 300ms ease;
+  }
+  .settings-section:hover {
+    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06);
+    border-color: var(--stone-300);
+  }
+  .settings-section-header {
+    padding: 24px 28px 0;
+  }
+  .settings-section-body {
+    padding: 20px 28px 28px;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--stone-100);
+  }
+  .settings-row:last-child {
+    border-bottom: none;
+  }
+
+  /* Toggle Switch */
+  .toggle-switch {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    border-radius: 13px;
+    background: var(--stone-200);
+    cursor: pointer;
+    transition: background 250ms ease;
+    border: none;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .toggle-switch.active {
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+  }
+  .toggle-switch.active::after {
+    transform: translateX(22px);
+  }
+
+  /* Danger Zone */
+  .danger-zone {
+    background: linear-gradient(180deg, #fff 0%, #fef2f2 100%);
+    border: 1px solid #fecaca;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .danger-zone:hover {
+    border-color: #fca5a5;
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.08);
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .btn-danger:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 14px 22px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: toastIn 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+  }
+  .toast-success {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: #fff;
+  }
+  .toast-error {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: #fff;
+  }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Settings Avatar */
+  .settings-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    background: linear-gradient(135deg, #14b8a6, #3b82f6);
+    box-shadow: 0 8px 24px rgba(20, 184, 166, 0.3);
+    transition: transform 300ms ease, box-shadow 300ms ease;
+  }
+  .settings-avatar:hover {
+    transform: scale(1.05) rotate(2deg);
+    box-shadow: 0 12px 32px rgba(20, 184, 166, 0.4);
+  }
+
+  /* Settings Tabs */
+  .settings-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--stone-100);
+    padding: 4px;
+    border-radius: 14px;
+    margin-bottom: 28px;
+  }
+  .settings-tab {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--stone-500);
+    cursor: pointer;
+    transition: all 200ms ease;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .settings-tab:hover {
+    color: var(--stone-700);
+    background: rgba(255,255,255,0.5);
+  }
+  .settings-tab.active {
+    background: #fff;
+    color: var(--teal-700);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-weight: 700;
+  }
 }

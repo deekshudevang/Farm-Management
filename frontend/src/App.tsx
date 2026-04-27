@@ -8,6 +8,7 @@ import { Fields } from './pages/Fields';
 import { Tasks } from './pages/Tasks';
 import { Inventory } from './pages/Inventory';
 import { Reports } from './pages/Reports';
+import { Settings } from './pages/Settings';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="tasks" element={<Tasks />} />
             <Route path="inventory" element={<Inventory />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>
       </AuthProvider>
