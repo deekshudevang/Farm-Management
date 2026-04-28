@@ -31,10 +31,9 @@ export const createCrop = async (req: Request, res: Response) => {
 
 export const updateCrop = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { stage, variety, name } = req.body;
-  
+  const { name, stage, variety } = req.body;
   const targetCrop = await prisma.crop.findUnique({
-    where: { id },
+    where: { id: id as string },
     include: { field: true }
   });
   
@@ -43,7 +42,7 @@ export const updateCrop = async (req: Request, res: Response) => {
   }
 
   const crop = await prisma.crop.update({
-    where: { id },
+    where: { id: id as string },
     data: { 
       stage: stage !== undefined ? stage : undefined,
       variety: variety !== undefined ? variety : undefined,

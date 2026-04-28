@@ -25,15 +25,15 @@ export const createField = async (req: Request, res: Response) => {
 
 export const updateField = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, size, unit, location } = req.body;
+  const targetField = await prisma.field.findUnique({ where: { id: id as string } });
   
-  const targetField = await prisma.field.findUnique({ where: { id } });
   if (!targetField || targetField.userId !== req.user.id) {
     return res.status(403).json({ error: 'Permission denied: Unauthorized field access' });
   }
 
+  const { name, size, unit, location } = req.body;
   const field = await prisma.field.update({
-    where: { id },
+    where: { id: id as string },
     data: { 
       name, 
       size: size !== undefined ? parseFloat(size) : undefined, 
@@ -46,13 +46,13 @@ export const updateField = async (req: Request, res: Response) => {
 
 export const deleteField = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const targetField = await prisma.field.findUnique({ where: { id } });
+  const targetField = await prisma.field.findUnique({ where: { id: id as string } });
   if (!targetField || targetField.userId !== req.user.id) {
     return res.status(403).json({ error: 'Permission denied: Unauthorized field deletion' });
   }
 
   // Note: Prisma will handle cascading deletes if configured in schema, 
   // otherwise we'd need to handle crops here.
-  await prisma.field.delete({ where: { id } });
+  await prisma.field.delete({ where: { id: id as string } });
   res.status(204).send();
 };

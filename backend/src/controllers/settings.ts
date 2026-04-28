@@ -55,7 +55,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   res.json(user);
 };
 
-export const changePassword = async (req: AuthRequest, res: Response) => {
+export const changePassword = async (req: Request, res: Response) => {
   const { currentPassword, newPassword } = req.body;
 
   if (!currentPassword || !newPassword) {
@@ -89,7 +89,7 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
   res.json({ message: 'Security code updated successfully' });
 };
 
-export const deleteAccount = async (req: AuthRequest, res: Response) => {
+export const deleteAccount = async (req: Request, res: Response) => {
   const userId = req.user.id;
 
   // Manual cascade (if not set in Prisma schema)
