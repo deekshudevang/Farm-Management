@@ -186,7 +186,9 @@ Tests cover all Zod validation schemas for:
 
 ## 🚀 Deployment
 
-AgriSmart is ready for production. Follow these steps to host it in the cloud.
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/deekshudevang/Farm-Management)
+
+AgriSmart is ready for production. You can use the button above for automated deployment of the **Backend + Database**. 
 
 ### 1. Database (MySQL)
 Create a production MySQL database using **Aiven**, **Railway**, or **TiDB Cloud**.
