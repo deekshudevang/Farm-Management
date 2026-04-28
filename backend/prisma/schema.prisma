@@ -22,8 +22,10 @@ model User {
 model Field {
   id        String   @id @default(uuid())
   name      String
-  size      Float    // in acres/hectares
-  soilType  String
+  size      Float    // Value
+  unit      String   @default("acres") // acres, hectares, etc.
+  location  String   @default("")
+  soilType  String   @default("unknown")
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   crops     Crop[]

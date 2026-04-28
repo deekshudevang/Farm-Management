@@ -30,8 +30,9 @@ export const updateTask = async (req: Request, res: Response) => {
     return res.status(403).json({ error: 'Permission denied: Unauthorized activity access' });
   }
 
+  const { title, status, description, priority, dueDate } = req.body;
   const task = await prisma.task.update({
-    where: { id },
+    where: { id: id as string },
     data: { 
       title: title !== undefined ? title : undefined,
       status: status !== undefined ? status : undefined,
