@@ -28,4 +28,40 @@ model Field {
   soilType  String   @default("unknown")
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+  crops     Crop[]
+  createdAt DateTime @default(now())
+}
+
+model Crop {
+  id        String   @id @default(uuid())
+  name      String
+  variety   String   @default("")
+  stage     String   // Seedling, Growing, Ready, Harvested
+  fieldId   String
+  field     Field    @relation(fields: [fieldId], references: [id])
+  plantedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @default("")
+  priority    String   @default("medium") // low, medium, high
+  status      String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  dueDate     DateTime?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Inventory {
+  id        String   @id @default(uuid())
+  name      String
+  category  String   // SEED, FERTILIZER, EQUIPMENT
+  quantity  Int
+  unit      String   @default("units")
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 }
