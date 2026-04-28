@@ -1,24 +1,17 @@
 services:
   # Backend Service
-  - type: web
-    name: agrismart-backend
-    runtime: node
-    plan: free
-    rootDir: backend
-    buildCommand: npm install --legacy-peer-deps && npx prisma generate && npx prisma db push --accept-data-loss && npm run build
-    startCommand: npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATABASE_URL
-        value: "" # Provide your MySQL connection string manually in the Render dashboard
-      - key: JWT_SECRET
-        generateValue: true
-      - key: CORS_ORIGIN
-        value: "*" # Update this to your Vercel URL later for better security
-
-# databases:
-#   - name: agrismart-db
-#     plan: free
-#     databaseName: agrismart
-#     user: admin
+    - type: web
+        name: agrismart-backend
+            runtime: node
+                plan: free
+                    rootDir: backend
+                        buildCommand: npm install --legacy-peer-deps && npx prisma generate && npx prisma db push --accept-data-loss && npm run build
+                            startCommand: npm start
+                                envVars:
+                                      - key: NODE_ENV
+                                              value: production
+                                                    - key: JWT_SECRET
+                                                            generateValue: true
+                                                                  - key: CORS_ORIGIN
+                                                                          value: "*" # Update this to your Vercel URL later for better security
+                                                                          
