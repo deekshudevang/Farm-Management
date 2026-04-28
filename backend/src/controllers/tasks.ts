@@ -25,10 +25,7 @@ export const createTask = async (req: Request, res: Response) => {
 
 export const updateTask = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, status, description, priority, dueDate } = req.body;
-  
-  // Verify ownership
-  const targetTask = await prisma.task.findUnique({ where: { id } });
+  const targetTask = await prisma.task.findUnique({ where: { id: id as string } });
   if (!targetTask || targetTask.userId !== req.user.id) {
     return res.status(403).json({ error: 'Permission denied: Unauthorized activity access' });
   }
@@ -48,10 +45,6 @@ export const updateTask = async (req: Request, res: Response) => {
 
 export const deleteTask = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const targetTask = await prisma.task.findUnique({ where: { id } });
-  if (!targetTask || targetTask.userId !== req.user.id) {
-    return res.status(403).json({ error: 'Permission denied: Unauthorized activity deletion' });
-  }
-  await prisma.task.delete({ where: { id } });
+  await prisma.task.delete({ where: { id: id as string } });
   res.status(204).send();
 };

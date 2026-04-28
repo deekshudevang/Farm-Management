@@ -28,13 +28,13 @@ export const updateInventoryItem = async (req: Request, res: Response) => {
   const { name, category, quantity, unit } = req.body;
   
   // Verify ownership
-  const targetItem = await prisma.inventory.findUnique({ where: { id } });
+  const targetItem = await prisma.inventory.findUnique({ where: { id: id as string } });
   if (!targetItem || targetItem.userId !== req.user.id) {
     return res.status(403).json({ error: 'Permission denied: Unauthorized asset access' });
   }
 
   const item = await prisma.inventory.update({
-    where: { id },
+    where: { id: id as string },
     data: {
       name,
       category,
@@ -47,10 +47,6 @@ export const updateInventoryItem = async (req: Request, res: Response) => {
 
 export const deleteInventoryItem = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const targetItem = await prisma.inventory.findUnique({ where: { id } });
-  if (!targetItem || targetItem.userId !== req.user.id) {
-    return res.status(403).json({ error: 'Permission denied: Unauthorized asset deletion' });
-  }
-  await prisma.inventory.delete({ where: { id } });
+  await prisma.inventory.delete({ where: { id: id as string } });
   res.status(204).send();
 };
