@@ -1,95 +1,90 @@
-import { useState, useEffect } from 'react';
-import { User, Lock, Bell, Palette, Trash2, Save, Check, X, Shield, Mail, Smartphone } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { 
+  User, Lock, Bell, Palette, Trash2, Save, Check, X, 
+  Shield, Mail, Smartphone, AlertTriangle, Activity, type LucideIcon 
+} from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { z } from 'zod';
+
+const ProfileSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+});
+
+const PasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(6, "New password must be at least 6 characters"),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+}).refine(data => data.newPassword === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
 
 type Tab = 'profile' | 'security' | 'notifications' | 'appearance';
-
-interface Toast { message: string; type: 'success' | 'error'; }
 
 export const Settings = () => {
   const { user, login, logout, token } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
-  const [toast, setToast] = useState<Toast | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // Profile state
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
   const [profileStats, setProfileStats] = useState({ fields: 0, tasks: 0, inventory: 0 });
-
-  // Password state
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  // Notification preferences (local only)
-  const [notifEmail, setNotifEmail] = useState(true);
-  const [notifPush, setNotifPush] = useState(false);
-  const [notifTaskReminders, setNotifTaskReminders] = useState(true);
-  const [notifWeeklyReport, setNotifWeeklyReport] = useState(true);
-
-  // Appearance (local only)
-  const [compactMode, setCompactMode] = useState(false);
-
-  // Delete confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  const { register: regProfile, handleSubmit: handleProfile, reset: resetProfile, formState: { errors: errorsProfile } } = useForm<z.infer<typeof ProfileSchema>>({
+    resolver: zodResolver(ProfileSchema),
+    defaultValues: { name: user?.name || '', email: user?.email || '' },
+  });
 
-  const showToast = (message: string, type: 'success' | 'error') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
+  const { register: regPass, handleSubmit: handlePass, reset: resetPass, formState: { errors: errorsPass } } = useForm<z.infer<typeof PasswordSchema>>({
+    resolver: zodResolver(PasswordSchema),
+    defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
+  });
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const res = await api.get('/settings/profile');
-      setName(res.data.name);
-      setEmail(res.data.email);
+      resetProfile({ name: res.data.name, email: res.data.email });
       setProfileStats({
         fields: res.data._count?.fields || 0,
         tasks: res.data._count?.tasks || 0,
         inventory: res.data._count?.inventory || 0,
       });
     } catch {
-      // use local data
+      // Fallback handled by interceptor or context
     }
-  };
+  }, [resetProfile]);
 
-  const handleSaveProfile = async () => {
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  const onProfileSubmit = async (data: z.infer<typeof ProfileSchema>) => {
     setLoading(true);
     try {
-      const res = await api.put('/settings/profile', { name, email });
-      login(token!, res.data);
-      showToast('Profile updated successfully', 'success');
-    } catch (err: any) {
-      showToast(err.response?.data?.error || 'Failed to update', 'error');
+      const res = await api.put('/settings/profile', data);
+      if (token) login(token, res.data);
+      toast.success('Enterprise profile synchronised');
+    } catch {
+      // Handled by interceptor
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      showToast('Passwords do not match', 'error');
-      return;
-    }
-    if (newPassword.length < 6) {
-      showToast('Password must be at least 6 characters', 'error');
-      return;
-    }
+  const onPasswordSubmit = async (data: z.infer<typeof PasswordSchema>) => {
     setLoading(true);
     try {
-      await api.put('/settings/password', { currentPassword, newPassword });
-      showToast('Password changed successfully', 'success');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-    } catch (err: any) {
-      showToast(err.response?.data?.error || 'Failed to change password', 'error');
+      await api.put('/settings/password', { 
+        currentPassword: data.currentPassword, 
+        newPassword: data.newPassword 
+      });
+      toast.success('Security protocols updated');
+      resetPass();
+    } catch {
+      // Handled by interceptor
     } finally {
       setLoading(false);
     }
@@ -99,266 +94,266 @@ export const Settings = () => {
     setLoading(true);
     try {
       await api.delete('/settings/account');
-      showToast('Account deleted', 'success');
-      setTimeout(() => logout(), 1000);
+      toast.success('Purging enterprise data...');
+      setTimeout(() => logout(), 1500);
     } catch {
-      showToast('Failed to delete account', 'error');
+      // Handled by interceptor
     } finally {
       setLoading(false);
     }
   };
 
-  const tabs: { key: Tab; label: string; icon: any }[] = [
-    { key: 'profile', label: 'Profile', icon: User },
+  const tabs: { key: Tab; label: string; icon: LucideIcon }[] = [
+    { key: 'profile', label: 'Identity', icon: User },
     { key: 'security', label: 'Security', icon: Lock },
     { key: 'notifications', label: 'Alerts', icon: Bell },
-    { key: 'appearance', label: 'Display', icon: Palette },
+    { key: 'appearance', label: 'Interface', icon: Palette },
   ];
 
   return (
-    <div className="page-enter" style={{ maxWidth: 780, margin: '0 auto' }}>
-      {/* Header */}
-      <div className="stagger-1" style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#0f172a', margin: 0 }}>Settings</h1>
-        <p style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Manage your account and preferences</p>
+    <div className="max-w-4xl mx-auto space-y-8 page-enter relative">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+      <div className="stagger-1">
+        <h1 className="text-3xl font-black tracking-tight" style={{ color: '#0f172a' }}>
+          System <span className="text-teal-600">Preferences</span>
+        </h1>
+        <p className="text-[14px] font-bold mt-1" style={{ color: '#64748b' }}>
+          Configuring <span className="text-teal-600">{user?.name}'s</span> operational environment
+        </p>
       </div>
 
-      {/* Tabs */}
-      <div className="settings-tabs stagger-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            className={`settings-tab ${activeTab === tab.key ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
-          >
-            <tab.icon style={{ width: 16, height: 16 }} />
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Profile Tab */}
-      {activeTab === 'profile' && (
-        <div className="stagger-3" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div className="settings-section">
-            <div className="settings-section-header">
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0 }}>Profile Information</h3>
-              <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Update your personal details</p>
-            </div>
-            <div className="settings-section-body">
-              {/* Avatar + Role */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 24 }}>
-                <div className="settings-avatar">
-                  {user?.name?.charAt(0).toUpperCase() || 'U'}
-                </div>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#0f172a' }}>{user?.name}</div>
-                  <span className={`badge ${user?.role === 'ADMIN' ? 'badge-purple' : 'badge-teal'}`} style={{ marginTop: 6 }}>
-                    <Shield style={{ width: 12, height: 12, marginRight: 4 }} />
-                    {user?.role}
-                  </span>
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
-                {[
-                  { label: 'Fields', value: profileStats.fields },
-                  { label: 'Tasks', value: profileStats.tasks },
-                  { label: 'Inventory', value: profileStats.inventory },
-                ].map((s) => (
-                  <div key={s.label} style={{ textAlign: 'center', padding: '14px 12px', background: '#f8fafc', borderRadius: 12 }}>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#0f766e' }}>{s.value}</div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Form */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div>
-                  <label className="label">Full Name</label>
-                  <input className="input-field" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
-                </div>
-                <div>
-                  <label className="label">Email Address</label>
-                  <input className="input-field" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" />
-                </div>
-              </div>
-
-              <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
-                <button className="btn btn-primary" onClick={handleSaveProfile} disabled={loading}>
-                  <Save style={{ width: 16, height: 16 }} />
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </div>
-          </div>
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Navigation Sidebar */}
+        <div className="w-full md:w-64 space-y-2 stagger-2">
+          {tabs.map((tab) => {
+             const Icon = tab.icon;
+             return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl text-[13px] font-black transition-all duration-300 ${
+                  activeTab === tab.key 
+                    ? 'bg-slate-900 text-white shadow-xl translate-x-2' 
+                    : 'bg-white text-slate-500 border border-slate-100 hover:border-teal-500 hover:text-teal-600'
+                }`}
+              >
+                <Icon className={`h-4 w-4 ${activeTab === tab.key ? 'text-teal-400' : ''}`} />
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
-      )}
 
-      {/* Security Tab */}
-      {activeTab === 'security' && (
-        <div className="stagger-3" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div className="settings-section">
-            <div className="settings-section-header">
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0 }}>Change Password</h3>
-              <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Keep your account secure</p>
-            </div>
-            <div className="settings-section-body">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div>
-                  <label className="label">Current Password</label>
-                  <input className="input-field" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••" />
-                </div>
-                <div>
-                  <label className="label">New Password</label>
-                  <input className="input-field" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Min 6 characters" />
-                </div>
-                <div>
-                  <label className="label">Confirm New Password</label>
-                  <input className="input-field" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repeat new password" />
-                </div>
-              </div>
-              <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
-                <button className="btn btn-primary" onClick={handleChangePassword} disabled={loading || !currentPassword || !newPassword}>
-                  <Lock style={{ width: 16, height: 16 }} />
-                  {loading ? 'Updating...' : 'Update Password'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Danger Zone */}
-          <div className="danger-zone">
-            <div style={{ padding: '24px 28px 0' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#dc2626', margin: 0 }}>Danger Zone</h3>
-              <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Irreversible actions on your account</p>
-            </div>
-            <div style={{ padding: '20px 28px 28px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Delete Account</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>Permanently remove your account and all data</div>
-                </div>
-                {!showDeleteConfirm ? (
-                  <button className="btn btn-danger btn-sm" onClick={() => setShowDeleteConfirm(true)}>
-                    <Trash2 style={{ width: 14, height: 14 }} />
-                    Delete
-                  </button>
-                ) : (
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button className="btn btn-danger btn-sm" onClick={handleDeleteAccount} disabled={loading}>
-                      <Check style={{ width: 14, height: 14 }} />
-                      Confirm
-                    </button>
-                    <button className="btn btn-secondary btn-sm" onClick={() => setShowDeleteConfirm(false)}>
-                      <X style={{ width: 14, height: 14 }} />
-                      Cancel
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Notifications Tab */}
-      {activeTab === 'notifications' && (
-        <div className="stagger-3" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div className="settings-section">
-            <div className="settings-section-header">
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0 }}>Notification Preferences</h3>
-              <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Choose how you want to be notified</p>
-            </div>
-            <div className="settings-section-body">
-              {[
-                { label: 'Email Notifications', desc: 'Receive updates via email', icon: Mail, value: notifEmail, setter: setNotifEmail },
-                { label: 'Push Notifications', desc: 'Browser push alerts', icon: Bell, value: notifPush, setter: setNotifPush },
-                { label: 'Task Reminders', desc: 'Get reminded about upcoming tasks', icon: Smartphone, value: notifTaskReminders, setter: setNotifTaskReminders },
-                { label: 'Weekly Report', desc: 'Receive a weekly farm summary', icon: Bell, value: notifWeeklyReport, setter: setNotifWeeklyReport },
-              ].map((item) => (
-                <div className="settings-row" key={item.label}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                    <div className="icon-float icon-float-teal" style={{ width: 38, height: 38, borderRadius: 10 }}>
-                      <item.icon style={{ width: 18, height: 18 }} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{item.label}</div>
-                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{item.desc}</div>
-                    </div>
-                  </div>
-                  <button
-                    className={`toggle-switch ${item.value ? 'active' : ''}`}
-                    onClick={() => item.setter(!item.value)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Appearance Tab */}
-      {activeTab === 'appearance' && (
-        <div className="stagger-3" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div className="settings-section">
-            <div className="settings-section-header">
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0 }}>Display Preferences</h3>
-              <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Customize how AgriSmart looks</p>
-            </div>
-            <div className="settings-section-body">
-              <div className="settings-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div className="icon-float icon-float-purple" style={{ width: 38, height: 38, borderRadius: 10 }}>
-                    <Palette style={{ width: 18, height: 18 }} />
+        {/* Content Area */}
+        <div className="flex-1 stagger-3">
+          {activeTab === 'profile' && (
+            <div className="space-y-6">
+              <div className="card-3d p-8 bg-white/40 backdrop-blur-xl">
+                <div className="flex items-center gap-6 mb-8">
+                  <div className="h-20 w-20 rounded-3xl bg-teal-500 flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-teal-500/20">
+                    {user?.name?.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Compact Mode</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8' }}>Reduce spacing for denser layouts</div>
+                    <h3 className="text-2xl font-black text-slate-900">{user?.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="badge badge-teal font-black text-[10px] uppercase tracking-wider flex items-center gap-1.5">
+                        <Shield className="h-3 w-3" /> {user?.role} ACCESS
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-400">UID: {user?.id.slice(0,8).toUpperCase()}</span>
+                    </div>
                   </div>
                 </div>
-                <button
-                  className={`toggle-switch ${compactMode ? 'active' : ''}`}
-                  onClick={() => setCompactMode(!compactMode)}
-                />
+
+                <div className="grid grid-cols-3 gap-4 mb-8">
+                  {[
+                    { label: 'Fields', value: profileStats.fields, color: 'text-teal-600' },
+                    { label: 'Tasks', value: profileStats.tasks, color: 'text-blue-600' },
+                    { label: 'Inventory', value: profileStats.inventory, color: 'text-amber-600' },
+                  ].map((s) => (
+                    <div key={s.label} className="bg-white/60 p-5 rounded-2xl border border-white text-center shadow-sm">
+                      <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
+                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <form onSubmit={handleProfile(onProfileSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Enterprise Name</label>
+                      <input 
+                        className={`input-field h-14 font-bold ${errorsProfile.name ? 'border-rose-400' : ''}`}
+                        {...regProfile('name')}
+                      />
+                      {errorsProfile.name && <p className="text-[11px] font-bold text-rose-500 mt-1">{errorsProfile.name.message}</p>}
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Secure Email</label>
+                      <input 
+                        className={`input-field h-14 font-bold ${errorsProfile.email ? 'border-rose-400' : ''}`}
+                        {...regProfile('email')}
+                      />
+                      {errorsProfile.email && <p className="text-[11px] font-bold text-rose-500 mt-1">{errorsProfile.email.message}</p>}
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <button type="submit" disabled={loading} className="btn btn-primary px-8 h-12 shadow-xl shadow-teal-500/20">
+                      <Save className="h-4 w-4 mr-2" /> 
+                      {loading ? 'Synchronising...' : 'Update Identity'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'security' && (
+            <div className="space-y-6">
+              <div className="card-3d p-8 bg-white/40 backdrop-blur-xl">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                    <Lock className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-slate-900">Security Credentials</h3>
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Maintain protocol integrity</p>
+                  </div>
+                </div>
+
+                <form onSubmit={handlePass(onPasswordSubmit)} className="space-y-6">
+                  <div>
+                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Current Access Code</label>
+                    <input 
+                      type="password"
+                      className={`input-field h-14 font-bold ${errorsPass.currentPassword ? 'border-rose-400' : ''}`}
+                      placeholder="••••••••"
+                      {...regPass('currentPassword')}
+                    />
+                    {errorsPass.currentPassword && <p className="text-[11px] font-bold text-rose-500 mt-1">{errorsPass.currentPassword.message}</p>}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 block">New Access Code</label>
+                      <input 
+                        type="password"
+                        className={`input-field h-14 font-bold ${errorsPass.newPassword ? 'border-rose-400' : ''}`}
+                        placeholder="••••••••"
+                        {...regPass('newPassword')}
+                      />
+                      {errorsPass.newPassword && <p className="text-[11px] font-bold text-rose-500 mt-1">{errorsPass.newPassword.message}</p>}
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Confirm Access Code</label>
+                      <input 
+                        type="password"
+                        className={`input-field h-14 font-bold ${errorsPass.confirmPassword ? 'border-rose-400' : ''}`}
+                        placeholder="••••••••"
+                        {...regPass('confirmPassword')}
+                      />
+                      {errorsPass.confirmPassword && <p className="text-[11px] font-bold text-rose-500 mt-1">{errorsPass.confirmPassword.message}</p>}
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <button type="submit" disabled={loading} className="btn btn-primary px-8 h-12 shadow-xl shadow-teal-500/20 bg-blue-600 hover:bg-blue-700">
+                      <Check className="h-4 w-4 mr-2" /> 
+                      {loading ? 'Validating...' : 'Rotate Security Code'}
+                    </button>
+                  </div>
+                </form>
               </div>
 
-              {/* Theme preview */}
-              <div style={{ marginTop: 20 }}>
-                <label className="label" style={{ marginBottom: 12 }}>Theme</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div style={{
-                    padding: 20, borderRadius: 14, border: '2px solid #14b8a6', background: '#f8fafc',
-                    cursor: 'pointer', textAlign: 'center', transition: 'all 200ms'
-                  }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 10, background: '#f1f5f9', margin: '0 auto 8px', border: '1px solid #e2e8f0' }} />
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>Light</div>
-                    <div style={{ fontSize: 11, color: '#14b8a6', fontWeight: 600, marginTop: 2 }}>Active</div>
+              <div className="card-3d p-8 bg-rose-50/30 border-rose-200/50 backdrop-blur-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-black text-rose-900">Decommission Account</h3>
+                    <p className="text-[12px] font-bold text-rose-600/70">Permanently purge all data from the system</p>
                   </div>
-                  <div style={{
-                    padding: 20, borderRadius: 14, border: '1px solid #e2e8f0', background: '#fff',
-                    cursor: 'not-allowed', textAlign: 'center', opacity: 0.5
-                  }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 10, background: '#1e293b', margin: '0 auto 8px' }} />
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>Dark</div>
-                    <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, marginTop: 2 }}>Coming Soon</div>
-                  </div>
+                  {!showDeleteConfirm ? (
+                    <button onClick={() => setShowDeleteConfirm(true)} className="btn bg-rose-500 text-white border-none px-6 h-10 hover:bg-rose-600 transition-all">
+                      <Trash2 className="h-4 w-4 mr-2" /> Purge Data
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <button onClick={handleDeleteAccount} disabled={loading} className="btn bg-rose-700 text-white border-none px-6 h-10 hover:bg-rose-800 transition-all">
+                        <AlertTriangle className="h-4 w-4 mr-2" /> Confirm Purge
+                      </button>
+                      <button onClick={() => setShowDeleteConfirm(false)} className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500">
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* Toast */}
-      {toast && (
-        <div className={`toast ${toast.type === 'success' ? 'toast-success' : 'toast-error'}`}>
-          {toast.type === 'success' ? <Check style={{ width: 18, height: 18 }} /> : <X style={{ width: 18, height: 18 }} />}
-          {toast.message}
+          {activeTab === 'notifications' && (
+            <div className="card-3d p-8 bg-white/40 backdrop-blur-xl">
+              <div className="mb-8">
+                <h3 className="text-lg font-black text-slate-900">Alert Configuration</h3>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Control operational intelligence feeds</p>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { label: 'System Dispatch', desc: 'Critical infrastructure status updates', icon: Mail, checked: true },
+                  { label: 'Phase Alerts', desc: 'Real-time crop stage progression notices', icon: Bell, checked: true },
+                  { label: 'Activity Reminders', desc: 'Scheduled operational task prompts', icon: Smartphone, checked: false },
+                  { label: 'Bi-Weekly Intelligence', desc: 'Condensed enterprise performance metrics', icon: Activity, checked: true },
+                ].map((item, idx) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-white/60 border border-white hover:bg-white transition-all group">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:text-teal-600 transition-colors">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-black text-slate-900">{item.label}</p>
+                          <p className="text-[11px] font-bold text-slate-400">{item.desc}</p>
+                        </div>
+                      </div>
+                      <div className={`h-6 w-11 rounded-full p-1 cursor-pointer transition-all duration-300 ${item.checked ? 'bg-teal-500' : 'bg-slate-200'}`}>
+                        <div className={`h-4 w-4 rounded-full bg-white shadow-sm transition-all duration-300 ${item.checked ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'appearance' && (
+            <div className="card-3d p-8 bg-white/40 backdrop-blur-xl">
+              <div className="mb-8">
+                <h3 className="text-lg font-black text-slate-900">Interface Optimisation</h3>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Customise your command center</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="p-6 rounded-3xl bg-white border-2 border-teal-500 shadow-xl shadow-teal-500/5 relative">
+                   <div className="absolute top-4 right-4">
+                      <Check className="h-5 w-5 text-teal-500" />
+                   </div>
+                   <div className="h-12 w-12 rounded-2xl bg-slate-100 mb-4 flex items-center justify-center text-slate-400">
+                      <Smartphone className="h-6 w-6" />
+                   </div>
+                   <h4 className="text-[14px] font-black text-slate-900">Light Mode</h4>
+                   <p className="text-[11px] font-bold text-slate-400 mt-1">High-clarity interface</p>
+                </div>
+                <div className="p-6 rounded-3xl bg-slate-900/5 border-2 border-transparent hover:border-slate-200 transition-all group">
+                   <div className="h-12 w-12 rounded-2xl bg-slate-800/10 mb-4 flex items-center justify-center text-slate-400 group-hover:text-slate-600">
+                      <Lock className="h-6 w-6" />
+                   </div>
+                   <h4 className="text-[14px] font-black text-slate-900">Dark Mode</h4>
+                   <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-widest">In Development</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

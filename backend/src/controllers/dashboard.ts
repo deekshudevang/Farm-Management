@@ -1,63 +1,55 @@
 import { Response } from 'express';
 import { prisma } from '../utils/prisma';
+import { AuthRequest } from '../types';
 
-export const getDashboardStats = async (req: any, res: Response) => {
-  try {
-    const userId = req.user.id;
+export const getDashboardStats = async (req: AuthRequest, res: Response) => {
+  const userId = req.user.id;
 
-    const totalFields = await prisma.field.count({ where: { userId } });
-    const totalCrops = await prisma.crop.count({ where: { field: { userId } } });
-    const activeTasks = await prisma.task.count({ where: { userId, status: { not: 'COMPLETED' } } });
-    
-    // Real financial data would come from a transactions model
-    // For now, let's scale it based on real crops or just keep it 0 if empty
-    const revenue = totalCrops > 0 ? (totalCrops * 1250) : 0;
-    const expenses = totalCrops > 0 ? (totalCrops * 450) : 0;
-    const profit = revenue - expenses;
-
-    // Monthly data for charts
-    const chartData = totalCrops > 0 ? [
-      { name: 'Jan', revenue: 400, expenses: 240 },
-      { name: 'Feb', revenue: 300, expenses: 139 },
-      { name: 'Mar', revenue: 200, expenses: 980 },
-      { name: 'Apr', revenue: 278, expenses: 390 },
-      { name: 'May', revenue: 189, expenses: 480 },
-      { name: 'Jun', revenue: revenue, expenses: expenses },
-    ] : [];
-
-    // Get real crops for distribution
-    const crops = await prisma.crop.findMany({
-      where: { field: { userId } },
-    });
-
-    const cropsDistribution = [
-      { name: 'Seedling', value: crops.filter(c => c.stage === 'Seedling').length },
-      { name: 'Growing', value: crops.filter(c => c.stage === 'Growing').length },
-      { name: 'Ready', value: crops.filter(c => c.stage === 'Ready').length },
-      { name: 'Harvested', value: crops.filter(c => c.stage === 'Harvested').length },
-    ].filter(d => d.value > 0);
-
-    const tasks = await prisma.task.findMany({
+  const [totalFields, totalCrops, activeTasks, crops, tasks] = await Promise.all([
+    prisma.field.count({ where: { userId } }),
+    prisma.crop.count({ where: { field: { userId } } }),
+    prisma.task.count({ where: { userId, status: { not: 'COMPLETED' } } }),
+    prisma.crop.findMany({ where: { field: { userId } } }),
+    prisma.task.findMany({
       where: { userId },
       take: 5,
       orderBy: { createdAt: 'desc' }
-    });
+    })
+  ]);
+  
+  // Real financial data simulation
+  const revenue = totalCrops > 0 ? (totalCrops * 1250) : 0;
+  const expenses = totalCrops > 0 ? (totalCrops * 450) : 0;
+  const profit = revenue - expenses;
 
-    res.json({
-      kpis: {
-        totalFields,
-        totalCrops,
-        activeTasks,
-        revenue,
-        expenses,
-        profit
-      },
-      chartData,
-      cropsDistribution,
-      tasks
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  // Monthly data for charts
+  const chartData = totalCrops > 0 ? [
+    { name: 'Jan', revenue: 400, expenses: 240 },
+    { name: 'Feb', revenue: 300, expenses: 139 },
+    { name: 'Mar', revenue: 200, expenses: 980 },
+    { name: 'Apr', revenue: 278, expenses: 390 },
+    { name: 'May', revenue: 189, expenses: 480 },
+    { name: 'Jun', revenue: revenue, expenses: expenses },
+  ] : [];
+
+  const cropsDistribution = [
+    { name: 'Seedling', value: crops.filter(c => c.stage === 'Seedling').length },
+    { name: 'Growing', value: crops.filter(c => c.stage === 'Growing').length },
+    { name: 'Ready', value: crops.filter(c => c.stage === 'Ready').length },
+    { name: 'Harvested', value: crops.filter(c => c.stage === 'Harvested').length },
+  ].filter(d => d.value > 0);
+
+  res.json({
+    kpis: {
+      totalFields,
+      totalCrops,
+      activeTasks,
+      revenue,
+      expenses,
+      profit
+    },
+    chartData,
+    cropsDistribution,
+    tasks
+  });
 };

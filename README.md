@@ -1,125 +1,223 @@
-# 🌿 AgriSmart Enterprise — Premium Farm Management System
+# 🌾 AgriSmart Pro — Farm Management System
 
-![AgriSmart Banner](assets/banner.png)
+A full-stack farm management dashboard for tracking crops, fields, tasks, inventory, and more. Built with React + TypeScript (frontend) and Express + Prisma (backend).
 
-AgriSmart is a professional, high-performance farm management platform designed for the modern enterprise. Built with a **10/10 Design System**, it combines cutting-edge **Glassmorphism**, **Dynamic Interactions**, and **Real-time Analytics** to provide a seamless experience for managing crops, fields, inventory, and operations.
-
-The entire architecture is designed with true multi-tenancy, ensuring enterprise data is fully isolated, secure, and personalized per user.
-
----
-
-## ✨ Key Features
-
-### 📊 Enterprise Intelligence
-- **Dynamic Analytics**: High-performance Area, Bar, and Pie charts displaying real-time revenue, crop lifecycle distribution, and resource levels.
-- **KPI Tracking**: Instant snapshots of total productivity, active task load, and projected financial metrics.
-- **Automated Calculations**: Financial models automatically adjust based on active bio-assets in the system.
-
-### 🚜 Geospatial Sector Management
-- **Field Directory**: Manage your land as precision-mapped sectors.
-- **Soil Profiling**: Track soil compositions (Loamy, Clay, Black, etc.) and acreage for each sector to optimize yield strategies.
-
-### 🌾 Cultivation Lifecycle
-- **Phase Tracking**: Monitor crops across detailed lifecycle stages (Seedling → Growing → Ready → Harvested).
-- **Genetic Variants**: Track specific crop varieties and genomes within each active sector.
-- **Strict Isolation**: Crops are securely bound to specific user-owned fields.
-
-### 📦 Resource Stockpile
-- **SKU-Level Inventory**: Detailed tracking of seeds, fertilizers, and operational equipment.
-- **Auto-Threshold Alerts**: Visual neon alerts automatically flag items that fall below critical safety stock levels.
-- **Standardized Units**: Granular tracking using proper metrics (kg, liters, bags, etc.).
-
-### 📋 Operational Pipeline
-- **Workload Sync**: Fully synchronized task management with priority indexing (High/Medium/Low).
-- **Due Date Tracking**: Monitor deadlines for critical farm operations like irrigation, harvesting, and maintenance.
+![AgriSmart](https://img.shields.io/badge/AgriSmart-Pro-teal?style=for-the-badge)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue?style=flat-square&logo=typescript)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
+![Express](https://img.shields.io/badge/Express-5.x-000000?style=flat-square&logo=express)
+![Prisma](https://img.shields.io/badge/Prisma-5.x-2D3748?style=flat-square&logo=prisma)
 
 ---
 
-## 🛠️ Technology Stack
+## 📑 Table of Contents
 
-This platform is built on a modern, high-performance web stack:
-
-- **Frontend Environment**: React 19 + Vite for ultra-fast compilation.
-- **Styling & UI**: TailwindCSS configured with a custom, premium "Space-Modern" Glassmorphism theme. Lucide React for crisp iconography. Recharts for dynamic visual intelligence.
-- **Backend Architecture**: Node.js and Express 5 providing a rapid, secure RESTful API.
-- **Database & ORM**: MySQL database managed through Prisma ORM 5.22, providing type-safe queries and rigorous schema enforcement.
-- **Security**: Industry-standard JWT (JSON Web Tokens) for session isolation and Bcrypt for robust password encryption.
-
----
-
-## 🚀 How to Run in VS Code
-
-Follow these straightforward steps to launch the enterprise platform locally.
-
-### 1. Prerequisites
-- **Node.js** (v18 or higher recommended)
-- **MySQL Server** (Running locally or via cloud, e.g., XAMPP, Docker, or PlanetScale)
-- **VS Code**
-
-### 2. Backend & Database Setup
-The system uses Prisma, making database setup incredibly easy. You do not need to manually import SQL files.
-
-1. Open the **`backend`** folder in VS Code.
-2. Open the `.env` file and ensure your database credentials are correct:
-   ```env
-   DATABASE_URL="mysql://YOUR_USER:YOUR_PASSWORD@localhost:3306/farm_management"
-   JWT_SECRET="your_premium_secret_key"
-   ```
-   *(If the `farm_management` database doesn't exist yet, create an empty one in your MySQL client first).*
-3. Open an integrated terminal (`Ctrl + ~`) in the **`backend`** directory and run:
-   ```bash
-   # Install backend dependencies
-   npm install
-
-   # Push the database schema to MySQL (creates all tables automatically)
-   npx prisma db push
-
-   # Generate the Prisma Client
-   npx prisma generate
-
-   # (Optional but Recommended) Populate the database with realistic Enterprise data
-   npx tsx src/seed.ts
-
-   # Start the Express server
-   npm run dev
-   ```
-   *The backend will start running on `http://localhost:5000`.*
-
-### 3. Frontend Configuration
-1. Open a **new terminal split** in VS Code.
-2. Navigate to the **`frontend`** directory and run:
-   ```bash
-   cd frontend
-   
-   # Install frontend dependencies
-   npm install
-   
-   # Start the Vite development server
-   npm run dev
-   ```
-3. The platform interface will now be live at **`http://localhost:5173`**. Hold `Ctrl` and click the link in the terminal to open it in your browser.
+- [Features](#-features)
+- [Architecture](#-architecture)
+- [Quick Start](#-quick-start)
+- [Environment Variables](#-environment-variables)
+- [API Endpoints](#-api-endpoints)
+- [Testing](#-testing)
+- [Security](#-security)
+- [Tech Stack](#-tech-stack)
+- [Contributing](#-contributing)
 
 ---
 
-## 🔑 Demo Access
+## ✨ Features
 
-If you ran the `npx tsx src/seed.ts` command during setup, the system is pre-loaded with a beautiful dataset. You can log in immediately with:
-
-- **Email**: `admin@smartfarm.com`
-- **Password**: `password123`
-
-*Note: You can also click "Sign Up" on the login screen to create a fresh, empty account to see the platform's multi-tenant isolation in action.*
+| Feature | Description |
+|---|---|
+| 🔐 **JWT Authentication** | Secure login/register with hashed passwords (bcrypt, 12 rounds) |
+| 🌱 **Crop Lifecycle** | Track crops through Seedling → Growing → Ready → Harvested |
+| 🗺️ **Field Management** | Register and manage land sectors with soil classification |
+| 📋 **Task Pipeline** | Kanban-style task management with status tracking |
+| 📦 **Inventory System** | Track seeds, fertilizers, and equipment with low-stock alerts |
+| 📊 **Dashboard Analytics** | KPI cards, revenue charts, and crop distribution visuals |
+| ✅ **Input Validation** | End-to-end validation with Zod schemas (frontend + backend) |
+| 🛡️ **Error Boundaries** | Graceful crash recovery with user-friendly error screens |
+| 🔔 **Toast Notifications** | Real-time success/error feedback via react-hot-toast |
+| 📱 **Responsive Design** | Works across desktop, tablet, and mobile devices |
 
 ---
 
-## 📸 Dashboard Preview
+## 🏗 Architecture
 
-![Dashboard Preview](assets/dashboard.png)
+```
+farm-management/
+├── backend/                # Express + Prisma REST API
+│   ├── prisma/             # Database schema & migrations
+│   ├── src/
+│   │   ├── controllers/    # Route handler logic
+│   │   ├── middleware/      # Auth, validation, error handling
+│   │   ├── routes/          # Express route definitions
+│   │   └── utils/           # Prisma client, Zod schemas
+│   └── .env.example
+│
+├── frontend/               # React + Vite SPA
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── context/        # Auth context provider
+│   │   ├── pages/          # Page-level components
+│   │   ├── services/       # Axios API client
+│   │   └── utils/          # Zod schemas & TypeScript types
+│   └── .env.example
+│
+└── README.md               # You are here
+```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** ≥ 18
+- **MySQL** database
+- **npm** package manager
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/deekshudevang/Farm-Management.git
+cd Farm-Management
+```
+
+### 2. Setup Backend
+
+```bash
+cd backend
+cp .env.example .env
+# Edit .env with your database credentials and a strong JWT secret
+npm install
+npx prisma generate
+npx prisma db push
+npm run dev
+```
+
+### 3. Setup Frontend
+
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+The frontend runs at `http://localhost:5173` and the backend at `http://localhost:5000`.
+
+---
+
+## 🔑 Environment Variables
+
+### Backend (`backend/.env`)
+
+| Variable | Description | Example |
+|---|---|---|
+| `DATABASE_URL` | MySQL connection string | `mysql://user:pass@localhost:3306/agrismart` |
+| `JWT_SECRET` | Secret key for JWT signing | `your-super-secret-key` |
+| `PORT` | Server port | `5000` |
+| `CORS_ORIGIN` | Allowed frontend origins (comma-separated) | `http://localhost:5173` |
+
+### Frontend (`frontend/.env`)
+
+| Variable | Description | Example |
+|---|---|---|
+| `VITE_API_URL` | Backend API base URL | `http://localhost:5000/api` |
+
+---
+
+## 📡 API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Create new account |
+| `POST` | `/api/auth/login` | Sign in & get JWT |
+
+### Protected Routes (require `Authorization: Bearer <token>`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/dashboard/stats` | Dashboard KPIs & charts |
+| `GET/POST` | `/api/fields` | List/Create fields |
+| `PUT/DELETE` | `/api/fields/:id` | Update/Delete a field |
+| `GET/POST` | `/api/crops` | List/Create crops |
+| `PUT` | `/api/crops/:id` | Update crop stage |
+| `GET/POST` | `/api/tasks` | List/Create tasks |
+| `PUT/DELETE` | `/api/tasks/:id` | Update/Delete a task |
+| `GET/POST` | `/api/inventory` | List/Create inventory |
+| `PUT/DELETE` | `/api/inventory/:id` | Update/Delete inventory |
+| `GET/PUT` | `/api/settings/profile` | View/Update profile |
+| `PUT` | `/api/settings/password` | Change password |
+| `DELETE` | `/api/settings/account` | Delete account |
+
+---
+
+## 🧪 Testing
+
+```bash
+cd frontend
+
+# Run tests in watch mode
+npm test
+
+# Run tests once (CI mode)
+npm run test:run
+```
+
+Tests cover all Zod validation schemas for:
+- Login / Register forms
+- Crop, Field, Task, Inventory schemas
+
+---
+
+## 🔒 Security
+
+- **Password Hashing**: bcrypt with 12 salt rounds
+- **JWT Authentication**: 24-hour expiration tokens
+- **Input Validation**: Zod schemas on both frontend and backend
+- **CORS Protection**: Whitelist-based origin control
+- **Body Size Limiting**: 10KB max request body
+- **Auto-Logout**: Automatic session expiry on 401/403 responses
+- **Error Boundaries**: Graceful crash recovery in the frontend
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+- React 19 + TypeScript
+- Vite 8
+- TailwindCSS 4
+- React Router 7
+- React Hook Form + Zod
+- Recharts
+- Lucide React Icons
+- react-hot-toast
+- Vitest + React Testing Library
+
+### Backend
+- Express 5
+- Prisma ORM
+- MySQL
+- bcryptjs
+- jsonwebtoken (JWT)
+- Zod validation
+- CORS
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ---
 
 ## 📄 License
-This project is proprietary and built for high-performance enterprise agriculture.
 
----
-*Architected and Engineered for Excellence.*
+ISC © [Deekshu Devang](https://github.com/deekshudevang)
