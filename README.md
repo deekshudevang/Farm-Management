@@ -184,27 +184,50 @@ Tests cover all Zod validation schemas for:
 
 ---
 
-## 🛠 Tech Stack
+## 🚀 Deployment
+
+AgriSmart is ready for production. Follow these steps to host it in the cloud.
+
+### 1. Database (MySQL)
+Create a production MySQL database using **Aiven**, **Railway**, or **TiDB Cloud**.
+- Copy your `DATABASE_URL` (e.g., `mysql://user:pass@host:port/db`).
+
+### 2. Backend (Render / Railway)
+- Connect your GitHub repository.
+- Root Directory: `backend`
+- Build Command: `npm run build` (runs `tsc`)
+- Start Command: `npm start` (runs `node dist/index.js`)
+- **Environment Variables**:
+  - `DATABASE_URL`: Your cloud MySQL connection string.
+  - `JWT_SECRET`: A long, secure random string.
+  - `NODE_ENV`: `production`
+
+### 3. Frontend (Vercel / Netlify)
+- Connect your GitHub repository.
+- Root Directory: `frontend`
+- Framework Preset: `Vite`
+- **Environment Variables**:
+  - `VITE_API_URL`: The URL of your deployed backend (e.g., `https://your-api.onrender.com/api`)
+
+---
+
+## 🏗 Technology Stack
 
 ### Frontend
-- React 19 + TypeScript
-- Vite 8
-- TailwindCSS 4
-- React Router 7
-- React Hook Form + Zod
-- Recharts
-- Lucide React Icons
-- react-hot-toast
-- Vitest + React Testing Library
+- **Framework**: React 19 + TypeScript
+- **Styling**: Tailwind CSS 4 + Framer Motion (Animations)
+- **State Management**: Zustand
+- **Analytics**: Recharts
+- **Icons**: Lucide React
+- **Testing**: Vitest + React Testing Library
 
 ### Backend
-- Express 5
-- Prisma ORM
-- MySQL
-- bcryptjs
-- jsonwebtoken (JWT)
-- Zod validation
-- CORS
+- **Server**: Express 5 (Node.js)
+- **ORM**: Prisma
+- **Database**: MySQL
+- **Validation**: Zod
+- **Security**: JWT (jsonwebtoken) + bcryptjs
+- **Middleware**: CORS, Body-Parser, Async Error Handling
 
 ---
 
