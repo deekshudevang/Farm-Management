@@ -1,8 +1,7 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { prisma } from '../utils/prisma';
-import { AuthRequest } from '../types';
 
-export const getCrops = async (req: AuthRequest, res: Response) => {
+export const getCrops = async (req: Request, res: Response) => {
   const crops = await prisma.crop.findMany({
     where: { field: { userId: req.user.id } },
     include: { field: true }
@@ -10,7 +9,7 @@ export const getCrops = async (req: AuthRequest, res: Response) => {
   res.json(crops);
 };
 
-export const createCrop = async (req: AuthRequest, res: Response) => {
+export const createCrop = async (req: Request, res: Response) => {
   const { name, stage, fieldId, variety } = req.body;
   
   // Verify field belongs to user
@@ -30,7 +29,7 @@ export const createCrop = async (req: AuthRequest, res: Response) => {
   res.status(201).json(crop);
 };
 
-export const updateCrop = async (req: AuthRequest, res: Response) => {
+export const updateCrop = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { stage, variety, name } = req.body;
   

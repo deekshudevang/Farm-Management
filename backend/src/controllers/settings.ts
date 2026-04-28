@@ -1,9 +1,8 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { prisma } from '../utils/prisma';
-import { AuthRequest } from '../types';
 
-export const getProfile = async (req: AuthRequest, res: Response) => {
+export const getProfile = async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user.id },
     select: {
@@ -29,7 +28,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
   res.json(user);
 };
 
-export const updateProfile = async (req: AuthRequest, res: Response) => {
+export const updateProfile = async (req: Request, res: Response) => {
   const { name, email } = req.body;
 
   if (email) {

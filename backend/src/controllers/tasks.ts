@@ -1,8 +1,7 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { prisma } from '../utils/prisma';
-import { AuthRequest } from '../types';
 
-export const getTasks = async (req: AuthRequest, res: Response) => {
+export const getTasks = async (req: Request, res: Response) => {
   const tasks = await prisma.task.findMany({
     where: { userId: req.user.id },
     orderBy: { createdAt: 'desc' }
@@ -10,7 +9,7 @@ export const getTasks = async (req: AuthRequest, res: Response) => {
   res.json(tasks);
 };
 
-export const createTask = async (req: AuthRequest, res: Response) => {
+export const createTask = async (req: Request, res: Response) => {
   const { title, description, priority, dueDate } = req.body;
   const task = await prisma.task.create({
     data: {
@@ -24,7 +23,7 @@ export const createTask = async (req: AuthRequest, res: Response) => {
   res.status(201).json(task);
 };
 
-export const updateTask = async (req: AuthRequest, res: Response) => {
+export const updateTask = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { title, status, description, priority, dueDate } = req.body;
   
@@ -47,7 +46,7 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
   res.json(task);
 };
 
-export const deleteTask = async (req: AuthRequest, res: Response) => {
+export const deleteTask = async (req: Request, res: Response) => {
   const { id } = req.params;
   const targetTask = await prisma.task.findUnique({ where: { id } });
   if (!targetTask || targetTask.userId !== req.user.id) {

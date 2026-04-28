@@ -1,8 +1,7 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { prisma } from '../utils/prisma';
-import { AuthRequest } from '../types';
 
-export const getInventory = async (req: AuthRequest, res: Response) => {
+export const getInventory = async (req: Request, res: Response) => {
   const inventory = await prisma.inventory.findMany({
     where: { userId: req.user.id },
     orderBy: { createdAt: 'desc' }
@@ -10,7 +9,7 @@ export const getInventory = async (req: AuthRequest, res: Response) => {
   res.json(inventory);
 };
 
-export const createInventoryItem = async (req: AuthRequest, res: Response) => {
+export const createInventoryItem = async (req: Request, res: Response) => {
   const { name, category, quantity, unit } = req.body;
   const item = await prisma.inventory.create({
     data: {
@@ -24,7 +23,7 @@ export const createInventoryItem = async (req: AuthRequest, res: Response) => {
   res.status(201).json(item);
 };
 
-export const updateInventoryItem = async (req: AuthRequest, res: Response) => {
+export const updateInventoryItem = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { name, category, quantity, unit } = req.body;
   
@@ -46,7 +45,7 @@ export const updateInventoryItem = async (req: AuthRequest, res: Response) => {
   res.json(item);
 };
 
-export const deleteInventoryItem = async (req: AuthRequest, res: Response) => {
+export const deleteInventoryItem = async (req: Request, res: Response) => {
   const { id } = req.params;
   const targetItem = await prisma.inventory.findUnique({ where: { id } });
   if (!targetItem || targetItem.userId !== req.user.id) {

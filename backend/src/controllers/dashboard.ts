@@ -1,8 +1,7 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { prisma } from '../utils/prisma';
-import { AuthRequest } from '../types';
 
-export const getDashboardStats = async (req: AuthRequest, res: Response) => {
+export const getDashboardStats = async (req: Request, res: Response) => {
   const userId = req.user.id;
 
   const [totalFields, totalCrops, activeTasks, crops, tasks] = await Promise.all([

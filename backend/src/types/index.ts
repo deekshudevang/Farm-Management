@@ -1,9 +1,3 @@
 import { Request } from 'express';
 
-export interface AuthRequest extends Request {
-  user: {
-    id: string;
-    email: string;
-    role: string;
-  };
-}
+// Standard types and interfaces can be added here
